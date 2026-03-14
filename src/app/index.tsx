@@ -1,14 +1,18 @@
-import { StyleSheet, View } from "react-native";
+import { useRouter } from "expo-router";
+import { useEffect } from "react";
+import Splash from "../core/components/spalsh";
 
 export default function Index() {
-  return <View style={styles.container}></View>;
-}
+  const router = useRouter();
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 20,
-    backgroundColor: "#ffffff00",
-  },
-});
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // replace to the named route '/home' instead of a file path
+      router.replace("/home");
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [router]);
+
+  return <Splash />;
+}
