@@ -1,5 +1,11 @@
 import React from "react";
-import { Dimensions, StyleSheet, Text, View } from "react-native";
+import {
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import blockColor from "../utils/enums";
 
 const { width } = Dimensions.get("window");
@@ -7,6 +13,9 @@ const { width } = Dimensions.get("window");
 interface TermoMatrizProps {
   matriz: (string | null)[][];
   palavraAtual?: string;
+  linhaAtual?: (string | null)[];
+  colunaAtual?: number | null;
+  onCellPress?: (linha: number, coluna: number) => void;
 }
 
 export function getBlockColor(
@@ -32,15 +41,29 @@ const TOTAL_COLUNAS = 5;
 export default function TermoMatriz({
   matriz,
   palavraAtual,
+  linhaAtual,
+  colunaAtual,
+  onCellPress,
 }: TermoMatrizProps) {
-  // Cria a grade completa (6x5) e preenche com os valores da matriz
+  // primeira linha é a linha editável (linha 0)
+  const linhaEmEdicao = 0;
+
   const gradeCompleta = Array.from(
     { length: TOTAL_LINHAS },
     (_, linhaIndex) => {
-      const linhaMatriz = matriz[linhaIndex] || [];
-      return Array.from({ length: TOTAL_COLUNAS }, (_, colunaIndex) => {
-        return linhaMatriz[colunaIndex] || null;
-      });
+      if (linhaIndex === 0) {
+        const fonte =
+          linhaAtual ?? matriz[0] ?? Array(TOTAL_COLUNAS).fill(null);
+        return Array.from(
+          { length: TOTAL_COLUNAS },
+          (_, colunaIndex) => fonte[colunaIndex] ?? null,
+        );
+      }
+      const fonte = matriz[linhaIndex - 1] || [];
+      return Array.from(
+        { length: TOTAL_COLUNAS },
+        (_, colunaIndex) => fonte[colunaIndex] ?? null,
+      );
     },
   );
 
@@ -52,11 +75,13 @@ export default function TermoMatriz({
       {gradeCompleta.map((linha, linhaIndex) => (
         <View key={linhaIndex} style={styles.linha}>
           {linha.map((letra, colunaIndex) => {
-            console.log(
-              `Processando letra: ${letra} na posição [${linhaIndex}, ${colunaIndex}]`,
-            );
+            const isEditingRow = linhaIndex === linhaEmEdicao;
+            const isSubmittedRow =
+              linhaIndex > 0 && matriz[linhaIndex - 1] !== undefined;
+            const isSelected = isEditingRow && colunaAtual === colunaIndex;
+
             const color =
-              palavraAtual && letra
+              isSubmittedRow && palavraAtual && letra
                 ? getBlockColor(colunaIndex, palavraAtual, letra)
                 : null;
             const textColor = !color
@@ -65,25 +90,43 @@ export default function TermoMatriz({
                 ? "#000000"
                 : "#ffffff";
 
+            const cellStyle = [
+              styles.quadrado,
+              {
+                backgroundColor: color ?? "#ffffff",
+                borderColor: isSelected
+                  ? "#6ca0dc"
+                  : color
+                    ? color === blockColor.preto
+                      ? "#d3d6da"
+                      : color
+                    : "#d3d6da",
+                borderWidth: isSelected ? 3 : 2,
+              },
+            ];
+
+            const cellContent = (
+              <Text style={[styles.letra, { color: textColor }]}>
+                {letra ? letra.toUpperCase() : ""}
+              </Text>
+            );
+
+            if (isEditingRow && onCellPress) {
+              return (
+                <TouchableOpacity
+                  key={`${linhaIndex}-${colunaIndex}`}
+                  style={cellStyle}
+                  activeOpacity={0.7}
+                  onPress={() => onCellPress(linhaIndex, colunaIndex)}
+                >
+                  {cellContent}
+                </TouchableOpacity>
+              );
+            }
+
             return (
-              <View
-                key={`${linhaIndex}-${colunaIndex}`}
-                style={[
-                  styles.quadrado,
-                  {
-                    backgroundColor: color ?? "#ffffff",
-                    borderColor: color
-                      ? color === blockColor.preto
-                        ? "#d3d6da"
-                        : color
-                      : "#d3d6da",
-                  },
-                ]}
-              >
-                <Text style={[styles.letra, { color: textColor }]}>
-                  {" "}
-                  {letra ? letra.toUpperCase() : ""}{" "}
-                </Text>
+              <View key={`${linhaIndex}-${colunaIndex}`} style={cellStyle}>
+                {cellContent}
               </View>
             );
           })}

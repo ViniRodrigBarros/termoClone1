@@ -8,7 +8,7 @@ type KeyboardProps = {
 const ROWS: string[][] = [
   ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
   ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
-  ["Z", "X", "C", "V", "B", "N", "M", "ENTER"],
+  ["Z", "X", "C", "V", "B", "N", "M"],
 ];
 
 export default function Keyboard({ onKeyPress }: KeyboardProps) {
@@ -19,19 +19,24 @@ export default function Keyboard({ onKeyPress }: KeyboardProps) {
           {row.map((key) => (
             <TouchableOpacity
               key={key}
-              style={[styles.key, key === "ENTER" && styles.enterKey]}
+              style={styles.key}
               activeOpacity={0.7}
-              onPress={() => onKeyPress(key === "ENTER" ? "ENTER" : key)}
+              onPress={() => onKeyPress(key)}
             >
-              <Text
-                style={[styles.keyText, key === "ENTER" && styles.enterText]}
-              >
-                {key}
-              </Text>
+              <Text style={styles.keyText}>{key}</Text>
             </TouchableOpacity>
           ))}
         </View>
       ))}
+      <View style={styles.row}>
+        <TouchableOpacity
+          style={[styles.key, styles.enterKey]}
+          activeOpacity={0.7}
+          onPress={() => onKeyPress("ENTER")}
+        >
+          <Text style={[styles.keyText, styles.enterText]}>ENTER</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
