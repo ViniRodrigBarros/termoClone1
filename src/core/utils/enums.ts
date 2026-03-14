@@ -4,4 +4,10 @@ export enum blockColor {
   amarelo = "#ffd700",
 }
 
+export enum Estado {
+  editing = "editing",
+  submitted = "submitted",
+  default = "default",
+}
+
 export default blockColor;
