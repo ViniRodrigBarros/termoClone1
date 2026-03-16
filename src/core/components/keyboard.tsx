@@ -1,5 +1,11 @@
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 type KeyboardProps = {
   onKeyPress: (key: string) => void;
@@ -11,6 +17,14 @@ const ROWS: string[][] = [
   ["Z", "X", "C", "V", "B", "N", "M"],
 ];
 
+const { width } = Dimensions.get("window");
+const KEY_MARGIN = 3;
+const KEYS_PER_ROW = 10;
+const KEY_WIDTH = Math.floor(
+  (width - KEY_MARGIN * KEYS_PER_ROW * 2 - 16) / KEYS_PER_ROW,
+);
+const KEY_HEIGHT = KEY_WIDTH * 1.4;
+
 export default function Keyboard({ onKeyPress }: KeyboardProps) {
   return (
     <View style={styles.container}>
@@ -20,7 +34,7 @@ export default function Keyboard({ onKeyPress }: KeyboardProps) {
             <TouchableOpacity
               key={key}
               style={styles.key}
-              activeOpacity={0.7}
+              activeOpacity={0.6}
               onPress={() => onKeyPress(key)}
             >
               <Text style={styles.keyText}>{key}</Text>
@@ -30,11 +44,18 @@ export default function Keyboard({ onKeyPress }: KeyboardProps) {
       ))}
       <View style={styles.row}>
         <TouchableOpacity
+          style={[styles.key, styles.specialKey]}
+          activeOpacity={0.6}
+          onPress={() => onKeyPress("BACKSPACE")}
+        >
+          <Text style={[styles.keyText, styles.actionText]}>⌫</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
           style={[styles.key, styles.enterKey]}
-          activeOpacity={0.7}
+          activeOpacity={0.6}
           onPress={() => onKeyPress("ENTER")}
         >
-          <Text style={[styles.keyText, styles.enterText]}>ENTER</Text>
+          <Text style={[styles.keyText, styles.actionText]}>ENTER</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -44,33 +65,44 @@ export default function Keyboard({ onKeyPress }: KeyboardProps) {
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
-    paddingVertical: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
   },
   row: {
     flexDirection: "row",
-    marginBottom: 8,
+    marginBottom: 6,
+    justifyContent: "center",
   },
   key: {
-    minWidth: 36,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    marginHorizontal: 4,
+    width: KEY_WIDTH,
+    height: KEY_HEIGHT,
+    marginHorizontal: KEY_MARGIN,
     borderRadius: 6,
-    backgroundColor: "#e6e6e6",
+    backgroundColor: "#d3d6da",
     justifyContent: "center",
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1,
+    elevation: 2,
   },
   keyText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#000",
+    fontSize: KEY_WIDTH * 0.45,
+    fontWeight: "700",
+    color: "#1a1a2e",
   },
   enterKey: {
-    backgroundColor: "#4caf50",
-    minWidth: 64,
+    width: KEY_WIDTH * 1.8,
+    backgroundColor: "#538d4e",
   },
-  enterText: {
-    color: "#fff",
-    fontWeight: "700",
+  specialKey: {
+    width: KEY_WIDTH * 1.8,
+    backgroundColor: "#b59f3b",
+    marginRight: KEY_MARGIN * 2,
+  },
+  actionText: {
+    color: "#ffffff",
+    fontSize: KEY_WIDTH * 0.4,
   },
 });
